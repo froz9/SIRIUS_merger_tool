@@ -79,7 +79,7 @@ ui <- fluidPage(
         # --- START: Updated "Data Preview" Tab ---
         tabPanel("Data Preview",
                  h4("Welcome to the SIRIUS Output Analyzer"),
-                 p("This app merges, analyzes, and visualizes the outputs from a SIRIUS analysis.",
+                 p("This app merges, analyzes, and visualizes two of the main outputs from SIRIUS app.",
                    "Upload your 'canopus_structure_summary.tsv' and 'structure_identifications.tsv' files to get started."),
                  hr(),
                  h5("Data Preview (Top 50 rows)"),
