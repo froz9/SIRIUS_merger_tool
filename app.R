@@ -40,7 +40,7 @@ if (!is.null(my_adducts)) {
 ui <- fluidPage(
   # --- START: Page Config & Title/Logo ---
   # Sets the browser tab title and icon (favicon)
-  title = "Metabolomics File Processor", 
+  title = "SIRIUS File Processor", 
   tags$head(
     tags$link(rel = "icon", href = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>")
   ),
