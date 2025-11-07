@@ -1,0 +1,31 @@
+Pathway,ColorCode
+Alkaloids,#773232
+"Alkaloids,Amino acids and Peptides",#65eb3c
+"Alkaloids,Amino acids and Peptides,Polyketides",#8e2edf
+"Alkaloids,Carbohydrates",#b4e54a
+"Alkaloids,Fatty acids",#644ccc
+"Alkaloids,Polyketides",#5ecd57
+"Alkaloids,Polyketides,Terpenoids",#ce57d2
+"Alkaloids,Shikimates and Phenylpropanoids",#ded13e
+"Alkaloids,Terpenoids",#522d82
+Amino acids and Peptides,#7ea439
+"Amino acids and Peptides,Fatty acids",#b8408f
+"Amino acids and Peptides,Polyketides",#6ad895
+"Amino acids and Peptides,Shikimates and Phenylpropanoids",#cf456c
+"Amino acids and Peptides,Terpenoids",#76d4c6
+Carbohydrates,#d34230
+"Carbohydrates,Fatty acids",#6a7ace
+"Carbohydrates,Polyketides",#d3a445
+"Carbohydrates,Terpenoids",#47254f
+Fatty acids,#c9d68e
+"Fatty acids,Polyketides",#c88272
+"Fatty acids,Shikimates and Phenylpropanoids",#c86e30
+"Fatty acids,Terpenoids",#84b3d8
+Polyketides,#4b8142
+"Polyketides,Shikimates and Phenylpropanoids",#cd90bf
+"Polyketides,Shikimates and Phenylpropanoids,Terpenoids",#3e4524
+"Polyketides,Terpenoids",#d1c1b7
+Shikimates and Phenylpropanoids,#5e6584
+"Shikimates and Phenylpropanoids,Terpenoids",#8b783e
+Terpenoids,#548277
+Unclassified,#000000

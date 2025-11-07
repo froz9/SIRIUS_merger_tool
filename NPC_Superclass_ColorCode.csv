@@ -1,0 +1,181 @@
+Superclass,ColorCode
+??-lactam-??-lactones,#a77243
+"??-lactam-??-lactones,Ornithine alkaloids",#c633ee
+??-lactams,#795d24
+"??-lactams,Small peptides",#a76194
+Alkylresorcinols,#788249
+"Alkylresorcinols,Aromatic polyketides",#7b486c
+Amino acid glycosides,#c9a982
+Aminosugars and aminoglycosides,#e0e8a5
+"Aminosugars and aminoglycosides,Polycyclic aromatic polyketides",#8b33d1
+"Aminosugars and aminoglycosides,Polyols",#a3f139
+"Aminosugars and aminoglycosides,Sesterterpenoids",#4746da
+Anthranilic acid alkaloids,#78d424
+"Anthranilic acid alkaloids,Peptide alkaloids",#e832d2
+Apocarotenoids,#64e861
+Aromatic polyketides,#c756e5
+"Aromatic polyketides,Diphenyl ethers (DPEs)",#b9ed3a
+"Aromatic polyketides,Meroterpenoids",#3f28a3
+Carotenoids (C40),#d7f13f
+Carotenoids (C45),#8e66ee
+Carotenoids (C50),#4ab41f
+Chromanes,#8a2fa6
+"Chromanes,Coumarins",#8ce354
+"Chromanes,Cyclic polyketides",#515dd9
+"Chromanes,Lignans,Flavonoids",#93c920
+"Chromanes,Xanthones",#be38ae
+Coumarins,#42b43c
+"Coumarins,Aromatic polyketides",#e5339b
+"Coumarins,Cyclic polyketides",#3dda79
+"Coumarins,Linear polyketides",#591774
+"Coumarins,Macrolides",#e7e139
+"Coumarins,Meroterpenoids",#2b176a
+"Coumarins,Sesquiterpenoids",#c0ea63
+"Coumarins,Xanthones",#b567d8
+Cyclic polyketides,#da4f77
+"Cyclic polyketides,Linear polyketides",#3577e4
+"Cyclic polyketides,Meroterpenoids",#f5c52e
+"Cyclic polyketides,Monoterpenoids",#8486f0
+"Cyclic polyketides,Oligopeptides",#7dac22
+Diarylheptanoids,#a370d8
+Diazotetronic acids and derivatives,#8dcc53
+"Diazotetronic acids and derivatives,Lignans",#6746a2
+Diphenyl ethers (DPEs),#9cea7b
+"Diphenyl ethers (DPEs),Meroterpenoids",#893382
+Diterpenoids,#73ea8e
+"Diterpenoids,Linear polyketides",#dd285b
+"Diterpenoids,Meroterpenoids",#5fe9b0
+Eicosanoids,#eb3825
+Fatty Acids and Conjugates,#60e6cb
+Fatty acyl glycosides,#e95314
+Fatty acyls,#65e1e3
+"Fatty acyls,Monoterpenoids",#ce2a2b
+Fatty amides,#39ad55
+"Fatty amides,Linear polyketides",#e44d8e
+"Fatty amides,Peptide alkaloids",#3f9121
+Fatty esters,#d281de
+Flavonoids,#2f6b17
+"Flavonoids,Peptide alkaloids",#ca5ba9
+Fluorenes,#7cb353
+Glycerolipids,#a82a75
+Glycerophospholipids,#ebea75
+Guanidine alkaloids,#29184f
+Histidine alkaloids,#c5e787
+"Histidine alkaloids,Peptide alkaloids",#293f88
+"Histidine alkaloids,Small peptides",#d1a92a
+Isoflavonoids,#6369c4
+Lignans,#e39226
+"Lignans,Flavonoids",#366bb3
+Linear polyketides,#b7b946
+"Linear polyketides,Small peptides",#0e0d2c
+Lysine alkaloids,#d3d870
+"Lysine alkaloids,Linear polyketides",#32133c
+"Lysine alkaloids,Nicotinic acid alkaloids",#b2e49d
+"Lysine alkaloids,Oligopeptides",#701755
+"Lysine alkaloids,Small peptides",#4faf72
+Macrolides,#e43a4a
+"Macrolides,Aminosugars and aminoglycosides",#2eaa8b
+"Macrolides,Coumarins",#eb4e74
+"Macrolides,Fatty esters",#4b893d
+"Macrolides,Linear polyketides",#ef9be6
+"Macrolides,Oligopeptides,Nicotinic acid alkaloids",#7a9226
+"Macrolides,Polycyclic aromatic polyketides",#9e8bde
+"Macrolides,Sesquiterpenoids",#e3bf59
+Meroterpenoids,#5a91df
+"Meroterpenoids,Cyclic polyketides",#e1792e
+"Meroterpenoids,Diterpenoids",#51b5e4
+"Meroterpenoids,Sesquiterpenoids",#e5603f
+Miscellaneous alkaloids,#3f78a6
+"Miscellaneous alkaloids,Miscellaneous polyketides",#aa3b19
+"Miscellaneous alkaloids,Peptide alkaloids",#67b2c3
+Miscellaneous polyketides,#912223
+Mitomycin derivatives,#baecc2
+Monoterpenoids,#2f1029
+Mycosporine derivatives,#e2d591
+Naphthalenes,#1d1d3c
+"Naphthalenes,Cyclic polyketides",#ecb470
+"Naphthalenes,Meroterpenoids",#06121f
+"Naphthalenes,Miscellaneous polyketides",#f18a62
+"Naphthalenes,Polycyclic aromatic polyketides",#1d2d53
+"Naphthalenes,Xanthones",#9d932c
+Nicotinic acid alkaloids,#9663ad
+"Nicotinic acid alkaloids,Anthranilic acid alkaloids",#9f7b19
+"Nicotinic acid alkaloids,Cyclic polyketides",#695a9a
+"Nicotinic acid alkaloids,Histidine alkaloids",#8aa75e
+"Nicotinic acid alkaloids,Linear polyketides",#5e3269
+"Nicotinic acid alkaloids,Meroterpenoids",#8cc8a0
+"Nicotinic acid alkaloids,Peptide alkaloids,Small peptides",#ae2e59
+"Nicotinic acid alkaloids,Peptide alkaloids,Tetramate alkaloids",#6cbab0
+"Nicotinic acid alkaloids,Sesquiterpenoids",#c6514c
+"Nicotinic acid alkaloids,Tetramate alkaloids,Peptide alkaloids",#408f85
+Nucleosides,#e8756f
+Octadecanoids,#3d6e36
+Oligopeptides,#dd729f
+"Oligopeptides,Histidine alkaloids",#2a5123
+"Oligopeptides,Linear polyketides",#deb5f1
+"Oligopeptides,Ornithine alkaloids",#626b19
+"Oligopeptides,Peptide alkaloids",#ab8dd0
+"Oligopeptides,Small peptides",#ac5b1a
+"Oligopeptides,Tetramate alkaloids,Peptide alkaloids",#85a4de
+Ornithine alkaloids,#c88d45
+"Ornithine alkaloids,Small peptides",#4a406c
+Peptide alkaloids,#a69854
+"Peptide alkaloids,Linear polyketides",#221729
+"Peptide alkaloids,Small peptides",#dddabd
+"Peptide alkaloids,Tetramate alkaloids",#4b1231
+"Peptide alkaloids,Tetramate alkaloids,Tryptophan alkaloids",#b2e2e2
+"Peptide alkaloids,Tryptophan alkaloids",#4e1a18
+Phenanthrenoids,#afcbe3
+Phenolic acids (C6-C1),#7b3b17
+"Phenolic acids (C6-C1),Aromatic polyketides",#bbc1f2
+"Phenolic acids (C6-C1),Phenylpropanoids (C6-C3)",#232515
+"Phenolic acids (C6-C1),Tryptophan alkaloids,Anthranilic acid alkaloids",#eea6c8
+Phenylethanoids (C6-C2),#21361a
+"Phenylethanoids (C6-C2),Peptide alkaloids",#eabdd5
+Phenylpropanoids (C6-C3),#395273
+"Phenylpropanoids (C6-C3),Peptide alkaloids",#eba286
+Phloroglucinols,#17332e
+Polycyclic aromatic polyketides,#e07385
+Polyethers,#4f815d
+"Polyethers,Linear polyketides",#9d476e
+Polyols,#73a57f
+Polyprenols,#762745
+Proline alkaloids,#abbb8a
+"Proline alkaloids,Tryptophan alkaloids",#2f151a
+Pseudoalkaloids,#e5cdd5
+"Pseudoalkaloids,Cyclic polyketides",#463012
+"Pseudoalkaloids,Histidine alkaloids",#c283b7
+"Pseudoalkaloids,Meroterpenoids",#4f4b18
+"Pseudoalkaloids,Peptide alkaloids",#e68fad
+"Pseudoalkaloids,Polycyclic aromatic polyketides",#223944
+"Pseudoalkaloids,Sesquiterpenoids",#c6714d
+"Pseudoalkaloids,Small peptides",#2b5271
+Saccharides,#eb69db
+Serine alkaloids,#2cf52b
+Sesquiterpenoids,#651cef
+"Sesquiterpenoids,Diterpenoids",#5f5c6f
+"Sesquiterpenoids,Monoterpenoids",#5b28d7
+Sesterterpenoids,#84f136
+Small peptides,#68709a
+Sphingolipids,#4b344b
+"Sphingolipids,Fatty Acids and Conjugates",#ddabaa
+Steroids,#2a5c64
+"Steroids,Chromanes",#a74f56
+Stilbenoids,#4b8494
+Styrylpyrones,#78272e
+"Styrylpyrones,Ornithine alkaloids",#9fa1be
+Terphenyls,#4f3237
+"Terphenyls,Diazotetronic acids and derivatives",#94a193
+Tetramate alkaloids,#a56050
+"Tetramate alkaloids,Peptide alkaloids",#3f6155
+"Tetramate alkaloids,Peptide alkaloids,Small peptides",#cd847e
+Triterpenoids,#54543b
+Tropolones,#b692b9
+Tryptophan alkaloids,#704939
+"Tryptophan alkaloids,Anthranilic acid alkaloids",#89688e
+"Tryptophan alkaloids,Ornithine alkaloids",#867d5c
+Tyrosine alkaloids,#a4677a
+Unclassified,#000000
+Xanthones,#b08b8c
+"Xanthones,Meroterpenoids",#848295
+"Xanthones,Polycyclic aromatic polyketides",#805d5f
