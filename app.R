@@ -178,11 +178,11 @@ server <- function(input, output, session) {
       merged$TimeInMinutes <- merged$retentionTimeInSeconds.y / 60
       
       merged <- merged %>% rename(superclass = 'ClassyFire#superclass', class = 'ClassyFire#class', 
-        subclass = 'ClassyFire#subclass', NPC_patwhay = 'NPC#pathway', NPC_superclass = 'NPC#superclass',
+        subclass = 'ClassyFire#subclass', NPC_pathway = 'NPC#pathway', NPC_superclass = 'NPC#superclass',
         NPC_class = 'NPC#class')
 
       merged[c("superclass", "class", "subclass")][merged[c("superclass", "class", "subclass")] == ""] <- "Unassigned"
-      merged[c("NPC_patwhay", "NPC_superclass", "NPC_class")][merged[c("NPC_patwhay", "NPC_superclass", "NPC_class")] == ""] <- "Unassigned"
+      merged[c("NPC_pathway", "NPC_superclass", "NPC_class")][merged[c("NPC_pathway", "NPC_superclass", "NPC_class")] == ""] <- "Unassigned"
      
       merged$ID_extract <- sub(".*_", "", merged$mappingFeatureId)
       
@@ -228,10 +228,10 @@ server <- function(input, output, session) {
   output$plot_sunburst_npc <- renderPlotly({
     req(merged_data())
     d <- merged_data()
-    d$ids <- paste(d$NPC_patwhay, d$NPC_superclass, d$NPC_class, sep = " - ")
-    d$parents <- paste(d$NPC_patwhay, d$NPC_superclass, sep = " - ")
-    r1 <- unique(data.frame(ids=d$NPC_patwhay, labels=d$NPC_patwhay, parents="", stringsAsFactors=F))
-    r2 <- unique(data.frame(ids=d$parents, labels=d$NPC_superclass, parents=d$NPC_patwhay, stringsAsFactors=F))
+    d$ids <- paste(d$NPC_pathway, d$NPC_superclass, d$NPC_class, sep = " - ")
+    d$parents <- paste(d$NPC_pathway, d$NPC_superclass, sep = " - ")
+    r1 <- unique(data.frame(ids=d$NPC_pathway, labels=d$NPC_pathway, parents="", stringsAsFactors=F))
+    r2 <- unique(data.frame(ids=d$parents, labels=d$NPC_superclass, parents=d$NPC_pathway, stringsAsFactors=F))
     r3 <- unique(data.frame(ids=d$ids, labels=d$NPC_class, parents=d$parents, stringsAsFactors=F))
     plot_ly(rbind(r1, r2, r3), ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3)
   })
