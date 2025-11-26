@@ -101,7 +101,8 @@ ui <- fluidPage(
                                                   height = "800px"))),
                  fluidRow(column(12, plotlyOutput("plot_npc_class", 
                                                   height = "1000px")))),
-        tabPanel("Sunburst (ClassyFire)", plotlyOutput("plot_sunburst", height = "800px")),
+        tabPanel("Sunburst (ClassyFire)", plotlyOutput("plot_sunburst_classyfire", height = "800px")),
+        tabPanel("Sunburst (NPC)", plotlyOutput("plot_sunburst_npc", height = "800px")),
         tabPanel("Downloads",
                  h3("Main Results"),
                  downloadButton("dl_merged", "Download Full Merged Data (.csv)", class = "btn-primary"), br(), br(),
@@ -176,8 +177,13 @@ server <- function(input, output, session) {
       merged$Mass.accuracy.ppm <- ((1-(merged$ionMass.y / merged$Theoretical.mass))*1000000)
       merged$TimeInMinutes <- merged$retentionTimeInSeconds.y / 60
       
-      merged <- merged %>% rename(superclass = 'ClassyFire#superclass', class = 'ClassyFire#class', subclass = 'ClassyFire#subclass')
+      merged <- merged %>% rename(superclass = 'ClassyFire#superclass', class = 'ClassyFire#class', 
+        subclass = 'ClassyFire#subclass', NPC_patwhay = 'NPC#pathway', NPC_superclass = 'NPC#superclass',
+        NPC_class = 'NPC#class')
+
       merged[c("superclass", "class", "subclass")][merged[c("superclass", "class", "subclass")] == ""] <- "Unassigned"
+      merged[c("NPC_patwhay", "NPC_superclass", "NPC_class")][merged[c("NPC_patwhay", "NPC_superclass", "NPC_class")] == ""] <- "Unassigned"
+     
       merged$ID_extract <- sub(".*_", "", merged$mappingFeatureId)
       
       merged
@@ -196,9 +202,9 @@ server <- function(input, output, session) {
   cf_superclass_data <- reactive({ get_summary_data(merged_data(), "superclass", superclass_colors, "X.canopus.Superclass.") })
   cf_class_data <- reactive({ get_summary_data(merged_data(), "class", class_colors, "X.canopus.Class.") })
   cf_subclass_data <- reactive({ get_summary_data(merged_data(), "subclass", subclass_colors, "subclass") })
-  npc_pathway_data <- reactive({ get_summary_data(merged_data(), "NPC#pathway", npc_pathway_colors, "Pathway") })
-  npc_superclass_data <- reactive({ get_summary_data(merged_data(), "NPC#superclass", npc_superclass_colors, "Superclass") })
-  npc_class_data <- reactive({ get_summary_data(merged_data(), "NPC#class", npc_class_colors, "Class") })
+  npc_pathway_data <- reactive({ get_summary_data(merged_data(), "NPC_pathway", npc_pathway_colors, "Pathway") })
+  npc_superclass_data <- reactive({ get_summary_data(merged_data(), "NPC_superclass", npc_superclass_colors, "Superclass") })
+  npc_class_data <- reactive({ get_summary_data(merged_data(), "NPC_class", npc_class_colors, "Class") })
   
   # --- Render Plots ---
   output$plot_cf_superclass <- renderPlotly({ render_pie(cf_superclass_data(), "Superclass") })
@@ -208,7 +214,7 @@ server <- function(input, output, session) {
   output$plot_npc_superclass <- renderPlotly({ render_pie(npc_superclass_data(), "NPC Superclass") })
   output$plot_npc_class <- renderPlotly({ render_pie(npc_class_data(), "NPC Class") })
   
-  output$plot_sunburst <- renderPlotly({
+  output$plot_sunburst_classyfire <- renderPlotly({
     req(merged_data())
     d <- merged_data()
     d$ids <- paste(d$superclass, d$class, d$subclass, sep = " - ")
@@ -216,6 +222,17 @@ server <- function(input, output, session) {
     r1 <- unique(data.frame(ids=d$superclass, labels=d$superclass, parents="", stringsAsFactors=F))
     r2 <- unique(data.frame(ids=d$parents, labels=d$class, parents=d$superclass, stringsAsFactors=F))
     r3 <- unique(data.frame(ids=d$ids, labels=d$subclass, parents=d$parents, stringsAsFactors=F))
+    plot_ly(rbind(r1, r2, r3), ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3)
+  })
+
+  output$plot_sunburst_npc <- renderPlotly({
+    req(merged_data())
+    d <- merged_data()
+    d$ids <- paste(d$NPC_patwhay, d$NPC_superclass, d$NPC_class, sep = " - ")
+    d$parents <- paste(d$NPC_patwhay, d$NPC_superclass, sep = " - ")
+    r1 <- unique(data.frame(ids=d$NPC_patwhay, labels=d$NPC_patwhay, parents="", stringsAsFactors=F))
+    r2 <- unique(data.frame(ids=d$parents, labels=d$NPC_superclass, parents=d$NPC_patwhay, stringsAsFactors=F))
+    r3 <- unique(data.frame(ids=d$ids, labels=d$NPC_class, parents=d$parents, stringsAsFactors=F))
     plot_ly(rbind(r1, r2, r3), ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3)
   })
   
