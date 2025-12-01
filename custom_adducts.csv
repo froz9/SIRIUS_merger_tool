@@ -67,4 +67,4 @@ name,mass_multi,mass_add,formula_add,formula_sub,charge,positive
 [M-CH3-H]-,1,-16.030751,C0,CH3,-1,FALSE
 [M-H3N-H]-,1,-18.033825,C0,H3N,-1,FALSE
 [M+FA-H]-,1,44.998201,CH2O2,H,-1,FALSE
-[M + CHO2 + H]-,1,44.997655,CHO2,H,-1,FALSE
+[M+CHO2+H]-,1,44.997655,CHO2,H,-1,FALSE
