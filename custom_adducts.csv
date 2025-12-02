@@ -41,6 +41,7 @@ name,mass_multi,mass_add,formula_add,formula_sub,charge,positive
 [M+H-H4O2]+,1,-35.01385294,H,H4O2,1,TRUE
 [M+H-CH2O2]+,1,-44.99820287,H,CH2O2,1,TRUE
 [M]+,1,0,,,1,TRUE
+[M+H3N+H]+,1,18.033825,H,C0,1,TRUE
 [M-3H]3-,0.333333333,-1.007276,C0,H3,-3,FALSE
 [M-2H]2-,0.5,-1.007276,C0,H2,-2,FALSE
 [M-H]-,1,-1.007276,C0,H,-1,FALSE
