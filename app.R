@@ -38,78 +38,64 @@ if (!is.null(my_adducts)) {
 
 # --- 2. USER INTERFACE ---
 ui <- fluidPage(
-  # --- START: Page Config & Title/Logo ---
-  # Sets the browser tab title and icon (favicon)
   title = "SIRIUS File Processor", 
   tags$head(
     tags$link(rel = "icon", href = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>")
   ),
   
-  # Custom title panel with logo
   div(
     style = "display: flex; align-items: center; padding: 10px 0px;",
-    # This img() tag looks for 'logo_L125.png' in the 'www' folder
     img(src = "logo_L125.png", height = "200px", style = "margin-right: 20px;"),
     h2("SIRIUS Output Analyzer", style = "font-size: 80px; font-weight: bold; margin: 0;")
   ),
   hr(),
-  # --- END: Page Config & Title/Logo ---
   
   sidebarLayout(
     sidebarPanel(
       h4("1. Upload Data"),
       fileInput("canopus_file", "Load 'canopus_structure_summary.tsv'", accept = c(".tsv", "text/plain")),
-      fileInput("identifications_file", "Load 'structure_identifications.tsv'", accept = c(".tsv", "text/plain")),
+      helpText("Plots are generated using only the Canopus file. Upload identifications below to merge datasets."),
+      fileInput("identifications_file", "Load 'structure_identifications.tsv' (Optional)", accept = c(".tsv", "text/plain")),
       hr(),
       h4("2. Parameters"),
-      sliderInput("ppm_threshold", "Mass Accuracy Threshold (ppm):", min = 1, max = 30, value = 15),
+      sliderInput("ppm_threshold", "Mass Accuracy Threshold (ppm, for merged data):", min = 1, max = 30, value = 15),
+      numericInput("min_count", "Group features in Pie Charts with counts fewer than:", value = 3, min = 1, step = 1),
       hr(),
       helpText("Once data is loaded, navigate to the 'Downloads' tab to save results."),
       
-      # --- START: About & Contact ---
       hr(style="margin-top: 30px;"),
       h5("About & Contact"),
       p("This app was developed to process SIRIUS output files."),
       a(href = "mailto:f9.alan@gmail.com", "Report a bug")
-      # --- END: About & Contact ---
     ),
     
     mainPanel(
       tabsetPanel(
-        # --- START: Updated "Data Preview" Tab ---
         tabPanel("Data Preview",
                  h4("Welcome to the SIRIUS Output Analyzer"),
-                 p("This app merges, analyzes, and visualizes two of the main outputs from SIRIUS app.",
-                   "Upload your 'canopus_structure_summary.tsv' and 'structure_identifications.tsv' files to get started."),
+                 p("This app visualizes the main outputs from SIRIUS app. Plots are generated from the Canopus file.",
+                   "Upload 'structure_identifications.tsv' to merge datasets and download the combined tables."),
                  hr(),
                  h5("Data Preview (Top 50 rows)"),
                  DTOutput("preview_table")
         ),
-        # --- END: Updated "Data Preview" Tab ---
-        
         tabPanel("ClassyFire Plots",
-                 fluidRow(column(12, plotlyOutput("plot_cf_superclass", 
-                                                 height = "600px")), 
-                          column(12, plotlyOutput("plot_cf_class", 
-                                                  height = "800px"))),
-                 fluidRow(column(12, plotlyOutput("plot_cf_subclass", 
-                                                  height = "1000px")))),
+                 fluidRow(column(12, plotlyOutput("plot_cf_superclass", height = "600px")), 
+                          column(12, plotlyOutput("plot_cf_class", height = "800px"))),
+                 fluidRow(column(12, plotlyOutput("plot_cf_subclass", height = "1000px")))),
         tabPanel("NPC Plots",
-                 fluidRow(column(12, plotlyOutput("plot_npc_pathway", , 
-                                                  height = "600px")), 
-                          column(12, plotlyOutput("plot_npc_superclass", 
-                                                  height = "800px"))),
-                 fluidRow(column(12, plotlyOutput("plot_npc_class", 
-                                                  height = "1000px")))),
+                 fluidRow(column(12, plotlyOutput("plot_npc_pathway", height = "600px")), 
+                          column(12, plotlyOutput("plot_npc_superclass", height = "800px"))),
+                 fluidRow(column(12, plotlyOutput("plot_npc_class", height = "1000px")))),
         tabPanel("Sunburst (ClassyFire)", plotlyOutput("plot_sunburst_classyfire", height = "800px")),
         tabPanel("Sunburst (NPC)", plotlyOutput("plot_sunburst_npc", height = "800px")),
         tabPanel("Downloads",
-                 h3("Main Results"),
+                 h3("Main Results (Requires Merged Data)"),
                  downloadButton("dl_merged", "Download Full Merged Data (.csv)", class = "btn-primary"), br(), br(),
                  downloadButton("dl_filtered", "Download Filtered (PPM) Data (.csv)", class = "btn-primary"),
                  hr(),
                  h3("Summary Tables (for Pie Charts)"),
-                 p("These tables include the color codes and 'Others (<3)' grouping used in the plots."),
+                 p("These tables include the color codes and 'Others' grouping used in the plots based on the Canopus file."),
                  fluidRow(
                    column(6, 
                           h4("ClassyFire"),
@@ -135,12 +121,12 @@ server <- function(input, output, session) {
   options(shiny.maxRequestSize = 100*1024^2)
   
   # --- Helper Functions ---
-  get_summary_data <- function(df, col_name, color_ref_df, merge_col_ref) {
+  get_summary_data <- function(df, col_name, color_ref_df, merge_col_ref, min_count) {
     req(df)
     counts <- as.data.frame(table(df[[col_name]]))
     colnames(counts) <- c("Group", "Freq")
-    df_main <- counts %>% filter(Freq >= 3)
-    df_other <- data.frame(Group = "Others (< 3)", Freq = sum(counts$Freq[counts$Freq < 3]))
+    df_main <- counts %>% filter(Freq >= min_count)
+    df_other <- data.frame(Group = paste0("Others (< ", min_count, ")"), Freq = sum(counts$Freq[counts$Freq < min_count]))
     plot_data <- rbind(df_main, df_other)
     plot_data <- plot_data[plot_data$Freq > 0, ]
     
@@ -161,34 +147,54 @@ server <- function(input, output, session) {
   }
   
   # --- Main Data Processing ---
-  merged_data <- reactive({
-    req(input$canopus_file, input$identifications_file)
+  canopus_data <- reactive({
+    req(input$canopus_file)
     tryCatch({
       canopus <- as.data.frame(fread(input$canopus_file$datapath))
+      
+      canopus <- canopus %>% rename(
+        superclass = 'ClassyFire#superclass', 
+        class = 'ClassyFire#class', 
+        subclass = 'ClassyFire#subclass', 
+        NPC_pathway = 'NPC#pathway', 
+        NPC_superclass = 'NPC#superclass',
+        NPC_class = 'NPC#class'
+      )
+      
+      canopus[c("superclass", "class", "subclass")][canopus[c("superclass", "class", "subclass")] == ""] <- "Unassigned"
+      canopus[c("NPC_pathway", "NPC_superclass", "NPC_class")][canopus[c("NPC_pathway", "NPC_superclass", "NPC_class")] == ""] <- "Unassigned"
+      
+      canopus$ID_extract <- sub(".*_", "", canopus$mappingFeatureId)
+      canopus
+    }, error = function(e) {
+      showNotification(paste("Error loading Canopus file:", e$message), type = "error", duration = 10)
+      NULL
+    })
+  })
+  
+  merged_data <- reactive({
+    req(canopus_data(), input$identifications_file)
+    tryCatch({
       idents <- as.data.frame(fread(input$identifications_file$datapath))
-      merged <- merge(canopus, idents, by = "mappingFeatureId")
+      merged <- merge(canopus_data(), idents, by = "mappingFeatureId")
       
-      merged$adduct.y <- gsub(" ", "", merged$adduct.y)
-      merged$adduct.y[merged$adduct.y == "[M-H2O+H]+"] <- "[M+H-H2O]+"
-      merged$adduct.y[merged$adduct.y == "[M+H3N+H]+"] <- "[M+NH4]+"
-      merged$adduct.y[merged$adduct.y == "[M-H4O2+H]+"] <- "[M+H-H4O2]+"
+      if("adduct.y" %in% names(merged)) {
+        merged$adduct.y <- gsub(" ", "", merged$adduct.y)
+        merged$adduct.y[merged$adduct.y == "[M-H2O+H]+"] <- "[M+H-H2O]+"
+        merged$adduct.y[merged$adduct.y == "[M+H3N+H]+"] <- "[M+NH4]+"
+        merged$adduct.y[merged$adduct.y == "[M-H4O2+H]+"] <- "[M+H-H4O2]+"
+        
+        merged$Theoretical.mass <- mapply(MetaboCoreUtils::formula2mz, merged$molecularFormula.y, merged$adduct.y)
+        merged$Mass.accuracy.ppm <- ((1-(merged$ionMass.y / merged$Theoretical.mass))*1000000)
+      }
       
-      merged$Theoretical.mass <- mapply(MetaboCoreUtils::formula2mz, merged$molecularFormula.y, merged$adduct.y)
-      merged$Mass.accuracy.ppm <- ((1-(merged$ionMass.y / merged$Theoretical.mass))*1000000)
-      merged$TimeInMinutes <- merged$retentionTimeInSeconds.y / 60
-      
-      merged <- merged %>% rename(superclass = 'ClassyFire#superclass', class = 'ClassyFire#class', 
-        subclass = 'ClassyFire#subclass', NPC_pathway = 'NPC#pathway', NPC_superclass = 'NPC#superclass',
-        NPC_class = 'NPC#class')
-
-      merged[c("superclass", "class", "subclass")][merged[c("superclass", "class", "subclass")] == ""] <- "Unassigned"
-      merged[c("NPC_pathway", "NPC_superclass", "NPC_class")][merged[c("NPC_pathway", "NPC_superclass", "NPC_class")] == ""] <- "Unassigned"
-     
-      merged$ID_extract <- sub(".*_", "", merged$mappingFeatureId)
+      if("retentionTimeInSeconds.y" %in% names(merged)) {
+        merged$TimeInMinutes <- merged$retentionTimeInSeconds.y / 60
+      }
       
       merged
     }, error = function(e) {
-      showNotification(paste("Error:", e$message), type = "error", duration = 10)
+      showNotification(paste("Error merging data:", e$message), type = "error", duration = 10)
       NULL
     })
   })
@@ -198,13 +204,13 @@ server <- function(input, output, session) {
     merged_data() %>% filter(Mass.accuracy.ppm > -input$ppm_threshold & Mass.accuracy.ppm < input$ppm_threshold)
   })
   
-  # --- Reactive Summary Tables ---
-  cf_superclass_data <- reactive({ get_summary_data(merged_data(), "superclass", superclass_colors, "X.canopus.Superclass.") })
-  cf_class_data <- reactive({ get_summary_data(merged_data(), "class", class_colors, "X.canopus.Class.") })
-  cf_subclass_data <- reactive({ get_summary_data(merged_data(), "subclass", subclass_colors, "subclass") })
-  npc_pathway_data <- reactive({ get_summary_data(merged_data(), "NPC_pathway", npc_pathway_colors, "Pathway") })
-  npc_superclass_data <- reactive({ get_summary_data(merged_data(), "NPC_superclass", npc_superclass_colors, "Superclass") })
-  npc_class_data <- reactive({ get_summary_data(merged_data(), "NPC_class", npc_class_colors, "Class") })
+  # --- Reactive Summary Tables (Based ONLY on Canopus file) ---
+  cf_superclass_data <- reactive({ get_summary_data(canopus_data(), "superclass", superclass_colors, "X.canopus.Superclass.", input$min_count) })
+  cf_class_data <- reactive({ get_summary_data(canopus_data(), "class", class_colors, "X.canopus.Class.", input$min_count) })
+  cf_subclass_data <- reactive({ get_summary_data(canopus_data(), "subclass", subclass_colors, "subclass", input$min_count) })
+  npc_pathway_data <- reactive({ get_summary_data(canopus_data(), "NPC_pathway", npc_pathway_colors, "Pathway", input$min_count) })
+  npc_superclass_data <- reactive({ get_summary_data(canopus_data(), "NPC_superclass", npc_superclass_colors, "Superclass", input$min_count) })
+  npc_class_data <- reactive({ get_summary_data(canopus_data(), "NPC_class", npc_class_colors, "Class", input$min_count) })
   
   # --- Render Plots ---
   output$plot_cf_superclass <- renderPlotly({ render_pie(cf_superclass_data(), "Superclass") })
@@ -215,8 +221,8 @@ server <- function(input, output, session) {
   output$plot_npc_class <- renderPlotly({ render_pie(npc_class_data(), "NPC Class") })
   
   output$plot_sunburst_classyfire <- renderPlotly({
-    req(merged_data())
-    d <- merged_data()
+    req(canopus_data())
+    d <- canopus_data()
     d$ids <- paste(d$superclass, d$class, d$subclass, sep = " - ")
     d$parents <- paste(d$superclass, d$class, sep = " - ")
     r1 <- unique(data.frame(ids=d$superclass, labels=d$superclass, parents="", stringsAsFactors=F))
@@ -224,10 +230,10 @@ server <- function(input, output, session) {
     r3 <- unique(data.frame(ids=d$ids, labels=d$subclass, parents=d$parents, stringsAsFactors=F))
     plot_ly(rbind(r1, r2, r3), ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3)
   })
-
+  
   output$plot_sunburst_npc <- renderPlotly({
-    req(merged_data())
-    d <- merged_data()
+    req(canopus_data())
+    d <- canopus_data()
     d$ids <- paste(d$NPC_pathway, d$NPC_superclass, d$NPC_class, sep = " - ")
     d$parents <- paste(d$NPC_pathway, d$NPC_superclass, sep = " - ")
     r1 <- unique(data.frame(ids=d$NPC_pathway, labels=d$NPC_pathway, parents="", stringsAsFactors=F))
@@ -237,11 +243,31 @@ server <- function(input, output, session) {
   })
   
   # --- Outputs & Downloads ---
-  output$preview_table <- renderDT({ datatable(head(merged_data(), 50), options = list(scrollX = T)) })
+  output$preview_table <- renderDT({ 
+    if(!is.null(input$identifications_file)) {
+      req(merged_data())
+      datatable(head(merged_data(), 50), options = list(scrollX = T)) 
+    } else {
+      req(canopus_data())
+      datatable(head(canopus_data(), 50), options = list(scrollX = T)) 
+    }
+  })
   
-  output$dl_merged <- downloadHandler(filename = "SIRIUS_Merged.csv", content = function(f) { write.csv(merged_data(), f, row.names=F) })
-  output$dl_filtered <- downloadHandler(filename = function() { paste0("SIRIUS_Filtered_", input$ppm_threshold, "ppm.csv") }, 
-                                        content = function(f) { write.csv(filtered_data(), f, row.names=F) })
+  output$dl_merged <- downloadHandler(
+    filename = "SIRIUS_Merged.csv", 
+    content = function(f) { 
+      req(merged_data())
+      write.csv(merged_data(), f, row.names=F) 
+    }
+  )
+  
+  output$dl_filtered <- downloadHandler(
+    filename = function() { paste0("SIRIUS_Filtered_", input$ppm_threshold, "ppm.csv") }, 
+    content = function(f) { 
+      req(filtered_data())
+      write.csv(filtered_data(), f, row.names=F) 
+    }
+  )
   
   output$dl_cf_super <- downloadHandler(filename = "ClassyFire_Superclass_Summary.csv", content = function(f) { write.csv(cf_superclass_data(), f, row.names=F) })
   output$dl_cf_class <- downloadHandler(filename = "ClassyFire_Class_Summary.csv", content = function(f) { write.csv(cf_class_data(), f, row.names=F) })

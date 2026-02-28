@@ -5,8 +5,9 @@ account: 5bptzm-alan-hernandez
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 16001293
-bundleId: 11259236
+bundleId:
 url: https://5bptzm-alan-hernandez.shinyapps.io/SIRIUS_merger_tool/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: .gitattributes|class_colors.csv|custom_adducts.csv|LICENSE|NPC_Class_ColorCode.csv|NPC_Pathway_ColorCode.csv|NPC_Superclass_ColorCode.csv|README.md|subclass_colors.csv|superclass_colors.csv|www/logo_L125.png
