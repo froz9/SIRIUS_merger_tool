@@ -113,8 +113,14 @@ ui <- fluidPage(
         )
       )
     )
-  )
-)
+  ),
+  # Global Footer
+  hr(style="margin-top: 40px;"),
+  div(style = "text-align: center; color: gray;",
+      p("SIRIUS merger tool"),
+      p("This work was supported by Universidad Nacional Autónoma de México Postdoctoral Program"),
+      a(href = "mailto:f9.alan@gmail.com", "Report a bug")
+))
 
 # --- 3. SERVER LOGIC ---
 server <- function(input, output, session) {
