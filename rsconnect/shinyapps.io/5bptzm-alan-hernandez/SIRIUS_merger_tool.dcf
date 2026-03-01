@@ -10,4 +10,4 @@ url: https://5bptzm-alan-hernandez.shinyapps.io/SIRIUS_merger_tool/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .gitattributes|class_colors.csv|custom_adducts.csv|LICENSE|NPC_Class_ColorCode.csv|NPC_Pathway_ColorCode.csv|NPC_Superclass_ColorCode.csv|README.md|subclass_colors.csv|superclass_colors.csv|www/logo_L125.png
+ignoredFiles: .gitattributes|class_colors.csv|custom_adducts.csv|LICENSE|NPC_Class_ColorCode.csv|NPC_Pathway_ColorCode.csv|NPC_Superclass_ColorCode.csv|README.md|subclass_colors.csv|superclass_colors.csv
