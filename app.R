@@ -5,6 +5,7 @@ library(dplyr)
 library(plotly)
 library(grDevices)
 library(DT)
+library(colourpicker) # Added for color pickers
 
 # --- 1. SETUP: LOAD STATIC SUPPORT FILES ---
 safe_read_csv <- function(filename) {
@@ -80,15 +81,27 @@ ui <- fluidPage(
                  DTOutput("preview_table")
         ),
         tabPanel("ClassyFire Plots",
+                 fluidRow(column(12, numericInput("cf_scale", "Image Download Resolution Scale (1-10):", value = 3, min = 1, max = 10, step = 1))),
                  fluidRow(column(12, plotlyOutput("plot_cf_superclass", height = "600px")), 
                           column(12, plotlyOutput("plot_cf_class", height = "800px"))),
                  fluidRow(column(12, plotlyOutput("plot_cf_subclass", height = "1000px")))),
         tabPanel("NPC Plots",
+                 fluidRow(column(12, numericInput("npc_scale", "Image Download Resolution Scale (1-10):", value = 3, min = 1, max = 10, step = 1))),
                  fluidRow(column(12, plotlyOutput("plot_npc_pathway", height = "600px")), 
                           column(12, plotlyOutput("plot_npc_superclass", height = "800px"))),
                  fluidRow(column(12, plotlyOutput("plot_npc_class", height = "1000px")))),
-        tabPanel("Sunburst (ClassyFire)", plotlyOutput("plot_sunburst_classyfire", height = "800px")),
-        tabPanel("Sunburst (NPC)", plotlyOutput("plot_sunburst_npc", height = "800px")),
+        tabPanel("Sunburst (ClassyFire)", 
+                 fluidRow(
+                   column(3, numericInput("sun_cf_scale", "Image Download Resolution Scale:", value = 3, min = 1, max = 10, step = 1)),
+                   column(9, h5("Manually select colors for root elements:"), div(style = "max-height: 150px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 10px;", uiOutput("sun_cf_color_pickers")))
+                 ),
+                 plotlyOutput("plot_sunburst_classyfire", height = "800px")),
+        tabPanel("Sunburst (NPC)", 
+                 fluidRow(
+                   column(3, numericInput("sun_npc_scale", "Image Download Resolution Scale:", value = 3, min = 1, max = 10, step = 1)),
+                   column(9, h5("Manually select colors for root elements:"), div(style = "max-height: 150px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 10px;", uiOutput("sun_npc_color_pickers")))
+                 ),
+                 plotlyOutput("plot_sunburst_npc", height = "800px")),
         tabPanel("Downloads",
                  h3("Main Results (Requires Merged Data)"),
                  downloadButton("dl_merged", "Download Full Merged Data (.csv)", class = "btn-primary"), br(), br(),
@@ -144,12 +157,14 @@ server <- function(input, output, session) {
     return(plot_data)
   }
   
-  render_pie <- function(plot_data, title) {
+  render_pie <- function(plot_data, title, scale_val) {
     req(plot_data)
+    scale_val <- if (!is.null(scale_val)) scale_val else 3
     plot_ly(plot_data, labels = ~Group, values = ~Freq, type = 'pie',
             sort = FALSE, direction = "clockwise",
             marker = list(colors = ~ColorCode), textfont = list(size = 15)) %>%
-      layout(font = list(size = 15), legend = list(title = list(text = paste0('<b> ', title, ' </b>')), y = 0.5))
+      layout(font = list(size = 15), legend = list(title = list(text = paste0('<b> ', title, ' </b>')), y = 0.5)) %>%
+      config(toImageButtonOptions = list(format = 'png', filename = paste0(title, '_pie'), scale = scale_val))
   }
   
   # --- Main Data Processing ---
@@ -219,13 +234,35 @@ server <- function(input, output, session) {
   npc_class_data <- reactive({ get_summary_data(canopus_data(), "NPC_class", npc_class_colors, "Class", input$min_count) })
   
   # --- Render Plots ---
-  output$plot_cf_superclass <- renderPlotly({ render_pie(cf_superclass_data(), "Superclass") })
-  output$plot_cf_class <- renderPlotly({ render_pie(cf_class_data(), "Class") })
-  output$plot_cf_subclass <- renderPlotly({ render_pie(cf_subclass_data(), "Subclass") })
-  output$plot_npc_pathway <- renderPlotly({ render_pie(npc_pathway_data(), "NPC Pathway") })
-  output$plot_npc_superclass <- renderPlotly({ render_pie(npc_superclass_data(), "NPC Superclass") })
-  output$plot_npc_class <- renderPlotly({ render_pie(npc_class_data(), "NPC Class") })
+  output$plot_cf_superclass <- renderPlotly({ render_pie(cf_superclass_data(), "Superclass", input$cf_scale) })
+  output$plot_cf_class <- renderPlotly({ render_pie(cf_class_data(), "Class", input$cf_scale) })
+  output$plot_cf_subclass <- renderPlotly({ render_pie(cf_subclass_data(), "Subclass", input$cf_scale) })
+  output$plot_npc_pathway <- renderPlotly({ render_pie(npc_pathway_data(), "NPC Pathway", input$npc_scale) })
+  output$plot_npc_superclass <- renderPlotly({ render_pie(npc_superclass_data(), "NPC Superclass", input$npc_scale) })
+  output$plot_npc_class <- renderPlotly({ render_pie(npc_class_data(), "NPC Class", input$npc_scale) })
   
+  # --- Dynamic Color Pickers for Sunbursts ---
+  output$sun_cf_color_pickers <- renderUI({
+    req(canopus_data())
+    superclasses <- unique(canopus_data()$superclass)
+    lapply(superclasses, function(sc) {
+      default_col <- superclass_colors$ColorCode[superclass_colors$X.canopus.Superclass. == sc]
+      if (length(default_col) == 0 || is.na(default_col)) default_col <- "#808080"
+      div(style = "width: 150px;", colourpicker::colourInput(paste0("col_cf_", gsub("[^[:alnum:]]", "", sc)), sc, value = default_col))
+    })
+  })
+  
+  output$sun_npc_color_pickers <- renderUI({
+    req(canopus_data())
+    pathways <- unique(canopus_data()$NPC_pathway)
+    lapply(pathways, function(pw) {
+      default_col <- npc_pathway_colors$ColorCode[npc_pathway_colors$Pathway == pw]
+      if (length(default_col) == 0 || is.na(default_col)) default_col <- "#808080"
+      div(style = "width: 150px;", colourpicker::colourInput(paste0("col_npc_", gsub("[^[:alnum:]]", "", pw)), pw, value = default_col))
+    })
+  })
+  
+  # --- Sunburst Renderers ---
   output$plot_sunburst_classyfire <- renderPlotly({
     req(canopus_data())
     d <- canopus_data()
@@ -234,7 +271,22 @@ server <- function(input, output, session) {
     r1 <- unique(data.frame(ids=d$superclass, labels=d$superclass, parents="", stringsAsFactors=F))
     r2 <- unique(data.frame(ids=d$parents, labels=d$class, parents=d$superclass, stringsAsFactors=F))
     r3 <- unique(data.frame(ids=d$ids, labels=d$subclass, parents=d$parents, stringsAsFactors=F))
-    plot_ly(rbind(r1, r2, r3), ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3)
+    
+    df_sun <- rbind(r1, r2, r3)
+    df_sun$root <- sapply(strsplit(df_sun$ids, " - "), `[`, 1)
+    
+    cols <- sapply(df_sun$root, function(sc) {
+      input_id <- paste0("col_cf_", gsub("[^[:alnum:]]", "", sc))
+      val <- input[[input_id]]
+      if (!is.null(val)) val else {
+        def <- superclass_colors$ColorCode[superclass_colors$X.canopus.Superclass. == sc]
+        if (length(def) > 0 && !is.na(def[1])) def[1] else "#808080"
+      }
+    })
+    
+    scale_val <- if (!is.null(input$sun_cf_scale)) input$sun_cf_scale else 3
+    plot_ly(df_sun, ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3, marker = list(colors = unname(cols))) %>%
+      config(toImageButtonOptions = list(format = 'png', filename = 'sunburst_classyfire', scale = scale_val))
   })
   
   output$plot_sunburst_npc <- renderPlotly({
@@ -245,7 +297,22 @@ server <- function(input, output, session) {
     r1 <- unique(data.frame(ids=d$NPC_pathway, labels=d$NPC_pathway, parents="", stringsAsFactors=F))
     r2 <- unique(data.frame(ids=d$parents, labels=d$NPC_superclass, parents=d$NPC_pathway, stringsAsFactors=F))
     r3 <- unique(data.frame(ids=d$ids, labels=d$NPC_class, parents=d$parents, stringsAsFactors=F))
-    plot_ly(rbind(r1, r2, r3), ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3)
+    
+    df_sun <- rbind(r1, r2, r3)
+    df_sun$root <- sapply(strsplit(df_sun$ids, " - "), `[`, 1)
+    
+    cols <- sapply(df_sun$root, function(pw) {
+      input_id <- paste0("col_npc_", gsub("[^[:alnum:]]", "", pw))
+      val <- input[[input_id]]
+      if (!is.null(val)) val else {
+        def <- npc_pathway_colors$ColorCode[npc_pathway_colors$Pathway == pw]
+        if (length(def) > 0 && !is.na(def[1])) def[1] else "#808080"
+      }
+    })
+    
+    scale_val <- if (!is.null(input$sun_npc_scale)) input$sun_npc_scale else 3
+    plot_ly(df_sun, ids=~ids, labels=~labels, parents=~parents, type='sunburst', maxdepth=3, marker = list(colors = unname(cols))) %>%
+      config(toImageButtonOptions = list(format = 'png', filename = 'sunburst_npc', scale = scale_val))
   })
   
   # --- Outputs & Downloads ---
