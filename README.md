@@ -17,7 +17,8 @@ This tool is specifically designed for chemoinformatics and metabolomics workflo
 
 * **Data Merging:** Seamlessly merges CANOPUS structure summaries with structure identifications based on their feature IDs.
 * **Interactive Visualizations:** Generates high-quality Pie Charts and Sunburst plots for both **ClassyFire** (Superclass, Class, Subclass) and **NPC** (Pathway, Superclass, Class) ontologies using `plotly`.
-* **Customizable Parameters:** * Filter merged datasets by Mass Accuracy Threshold (ppm).
+* **Customizable Parameters:**
+  * Filter merged datasets by Mass Accuracy Threshold (ppm).
   * Group minor features into an "Others" category to clean up visualizations.
   * Manually customize colors for Sunburst plot root elements.
 * **Data Export:** Download fully merged datasets, ppm-filtered datasets, and individual chemical class summary tables as `.csv` files.
