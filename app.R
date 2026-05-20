@@ -81,15 +81,25 @@ ui <- fluidPage(
                  DTOutput("preview_table")
         ),
         tabPanel("ClassyFire Plots",
-                 fluidRow(column(12, numericInput("cf_scale", "Image Download Resolution Scale (1-10):", value = 3, min = 1, max = 10, step = 1))),
-                 fluidRow(column(12, plotlyOutput("plot_cf_superclass", height = "800px")), 
+                 fluidRow(
+                   column(3, numericInput("cf_scale", "Image Download Resolution Scale (1-10):", value = 3, min = 1, max = 10, step = 1)),
+                   column(9, h5("Manually select colors for pie charts:"), 
+                          div(style = "max-height: 150px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 10px;", 
+                              uiOutput("pie_cf_color_pickers")))
+                 ),
+                 fluidRow(column(12, plotlyOutput("plot_cf_superclass", height = "600px")), 
                           column(12, plotlyOutput("plot_cf_class", height = "800px"))),
-                 fluidRow(column(12, plotlyOutput("plot_cf_subclass", height = "800px")))),
+                 fluidRow(column(12, plotlyOutput("plot_cf_subclass", height = "1000px")))),
         tabPanel("NPC Plots",
-                 fluidRow(column(12, numericInput("npc_scale", "Image Download Resolution Scale (1-10):", value = 3, min = 1, max = 10, step = 1))),
-                 fluidRow(column(12, plotlyOutput("plot_npc_pathway", height = "800px")), 
+                 fluidRow(
+                   column(3, numericInput("npc_scale", "Image Download Resolution Scale (1-10):", value = 3, min = 1, max = 10, step = 1)),
+                   column(9, h5("Manually select colors for pie charts:"), 
+                          div(style = "max-height: 150px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 10px;", 
+                              uiOutput("pie_npc_color_pickers")))
+                 ),
+                 fluidRow(column(12, plotlyOutput("plot_npc_pathway", height = "600px")), 
                           column(12, plotlyOutput("plot_npc_superclass", height = "800px"))),
-                 fluidRow(column(12, plotlyOutput("plot_npc_class", height = "800px")))),
+                 fluidRow(column(12, plotlyOutput("plot_npc_class", height = "1000px")))),
         tabPanel("Sunburst (ClassyFire)", 
                  fluidRow(
                    column(3, numericInput("sun_cf_scale", "Image Download Resolution Scale:", value = 3, min = 1, max = 10, step = 1)),
@@ -157,12 +167,23 @@ server <- function(input, output, session) {
     return(plot_data)
   }
   
-  render_pie <- function(plot_data, title, scale_val) {
+  render_pie <- function(plot_data, title, scale_val, input_prefix) {
     req(plot_data)
     scale_val <- if (!is.null(scale_val)) scale_val else 3
+    
+    # Apply dynamic colors if selected via UI
+    plot_data$DynamicColor <- sapply(plot_data$Group, function(g) {
+      safe_g <- gsub("[^[:alnum:]]", "", g)
+      val <- input[[paste0(input_prefix, safe_g)]]
+      if (!is.null(val)) val else {
+        def <- plot_data$ColorCode[plot_data$Group == g]
+        if (length(def) > 0 && !is.na(def[1])) def[1] else "#808080"
+      }
+    })
+    
     plot_ly(plot_data, labels = ~Group, values = ~Freq, type = 'pie',
             sort = FALSE, direction = "clockwise",
-            marker = list(colors = ~ColorCode), textfont = list(size = 15)) %>%
+            marker = list(colors = ~DynamicColor), textfont = list(size = 15)) %>%
       layout(font = list(size = 15), legend = list(title = list(text = paste0('<b> ', title, ' </b>')), y = 0.5)) %>%
       config(toImageButtonOptions = list(format = 'png', filename = paste0(title, '_pie'), scale = scale_val))
   }
@@ -234,12 +255,47 @@ server <- function(input, output, session) {
   npc_class_data <- reactive({ get_summary_data(canopus_data(), "NPC_class", npc_class_colors, "Class", input$min_count) })
   
   # --- Render Plots ---
-  output$plot_cf_superclass <- renderPlotly({ render_pie(cf_superclass_data(), "Superclass", input$cf_scale) })
-  output$plot_cf_class <- renderPlotly({ render_pie(cf_class_data(), "Class", input$cf_scale) })
-  output$plot_cf_subclass <- renderPlotly({ render_pie(cf_subclass_data(), "Subclass", input$cf_scale) })
-  output$plot_npc_pathway <- renderPlotly({ render_pie(npc_pathway_data(), "NPC Pathway", input$npc_scale) })
-  output$plot_npc_superclass <- renderPlotly({ render_pie(npc_superclass_data(), "NPC Superclass", input$npc_scale) })
-  output$plot_npc_class <- renderPlotly({ render_pie(npc_class_data(), "NPC Class", input$npc_scale) })
+  output$plot_cf_superclass <- renderPlotly({ render_pie(cf_superclass_data(), "Superclass", input$cf_scale, "pie_cf_") })
+  output$plot_cf_class <- renderPlotly({ render_pie(cf_class_data(), "Class", input$cf_scale, "pie_cf_") })
+  output$plot_cf_subclass <- renderPlotly({ render_pie(cf_subclass_data(), "Subclass", input$cf_scale, "pie_cf_") })
+  output$plot_npc_pathway <- renderPlotly({ render_pie(npc_pathway_data(), "NPC Pathway", input$npc_scale, "pie_npc_") })
+  output$plot_npc_superclass <- renderPlotly({ render_pie(npc_superclass_data(), "NPC Superclass", input$npc_scale, "pie_npc_") })
+  output$plot_npc_class <- renderPlotly({ render_pie(npc_class_data(), "NPC Class", input$npc_scale, "pie_npc_") })
+  
+  # --- Dynamic Color Pickers for Pie Charts ---
+  output$pie_cf_color_pickers <- renderUI({
+    req(cf_superclass_data(), cf_class_data(), cf_subclass_data())
+    
+    df1 <- cf_superclass_data()[, c("Group", "ColorCode")]
+    df2 <- cf_class_data()[, c("Group", "ColorCode")]
+    df3 <- cf_subclass_data()[, c("Group", "ColorCode")]
+    combined <- unique(rbind(df1, df2, df3))
+    
+    lapply(1:nrow(combined), function(i) {
+      g <- combined$Group[i]
+      def_col <- combined$ColorCode[i]
+      if (is.na(def_col)) def_col <- "#808080"
+      safe_g <- gsub("[^[:alnum:]]", "", g)
+      div(style = "width: 150px;", colourpicker::colourInput(paste0("pie_cf_", safe_g), g, value = def_col))
+    })
+  })
+  
+  output$pie_npc_color_pickers <- renderUI({
+    req(npc_pathway_data(), npc_superclass_data(), npc_class_data())
+    
+    df1 <- npc_pathway_data()[, c("Group", "ColorCode")]
+    df2 <- npc_superclass_data()[, c("Group", "ColorCode")]
+    df3 <- npc_class_data()[, c("Group", "ColorCode")]
+    combined <- unique(rbind(df1, df2, df3))
+    
+    lapply(1:nrow(combined), function(i) {
+      g <- combined$Group[i]
+      def_col <- combined$ColorCode[i]
+      if (is.na(def_col)) def_col <- "#808080"
+      safe_g <- gsub("[^[:alnum:]]", "", g)
+      div(style = "width: 150px;", colourpicker::colourInput(paste0("pie_npc_", safe_g), g, value = def_col))
+    })
+  })
   
   # --- Dynamic Color Pickers for Sunbursts ---
   output$sun_cf_color_pickers <- renderUI({
